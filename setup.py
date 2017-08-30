@@ -31,7 +31,10 @@ setup(
         'boto3>=1.4.6',
         'normality>=0.4.4'
     ],
-    tests_require=[],
+    tests_require=[
+        'coverage',
+        'moto'
+    ],
     test_suite='test',
     entry_points={
     }

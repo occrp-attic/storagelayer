@@ -3,18 +3,18 @@ import shutil
 import logging
 
 from storagelayer.archive import Archive
-from storagelayer.util import checksum, make_filename
+from storagelayer.util import checksum, make_filename, decode_path
 
 log = logging.getLogger(__name__)
 
 
 class FileArchive(Archive):
 
-    def __init__(self, config):
-        self.path = config.get('ARCHIVE_PATH')
+    def __init__(self, path=None):
+        self.path = decode_path(path)
         if self.path is None:
-            raise ValueError('No ARCHIVE_PATH is set.')
-        log.info("Local file system path: %s", self.path)
+            raise ValueError('No archive path is set.')
+        log.info("Archive path: %s", self.path)
 
     def _locate_key(self, content_hash):
         prefix = self._get_prefix(content_hash)

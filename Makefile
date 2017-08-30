@@ -1,12 +1,12 @@
 
-all: clean test release
+all: clean install test release
 
 install:
-	pip install -e .
-	pip install twine
+	pip install -q -e .
+	pip install -q twine moto coverage nose
 
 test:
-	python setup.py test
+	nosetests --with-coverage --cover-package=storagelayer --cover-erase
 
 build:
 	python setup.py sdist bdist_wheel

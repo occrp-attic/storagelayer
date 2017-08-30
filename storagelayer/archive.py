@@ -1,7 +1,9 @@
 import os
+import abc
 
 
 class Archive(object):
+    __metaclass__ = abc.ABCMeta
 
     def _get_prefix(self, content_hash):
         if content_hash is not None:
@@ -14,10 +16,12 @@ class Archive(object):
         """Run maintenance on the store."""
         pass
 
+    @abc.abstractmethod
     def archive_file(self, file_path, content_hash=None):
         """Import the given file into the archive."""
         pass
 
+    @abc.abstractmethod
     def load_file(self, content_hash, file_name=None):
         pass
 

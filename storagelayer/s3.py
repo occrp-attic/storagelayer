@@ -12,38 +12,37 @@ from storagelayer.util import checksum, make_filename
 log = logging.getLogger(__name__)
 
 
-class S3Archive(Archive):  # pragma: no cover
+class S3Archive(Archive):
     TIMEOUT = 84600
+    DEFAULT_REGION = 'eu-west-1'
 
-    def __init__(self, config):
+    def __init__(self, bucket=None, aws_key_id=None, aws_secret=None,
+                 aws_region=None):
         self.local_base = tempfile.gettempdir()
-        self.key_id = config.get('ARCHIVE_AWS_KEY_ID')
-        self.secret = config.get('ARCHIVE_AWS_SECRET')
-        self.region = config.get('ARCHIVE_AWS_REGION')
-        self.bucket_name = config.get('ARCHIVE_BUCKET')
 
-        self.session = Session(aws_access_key_id=self.key_id,
-                               aws_secret_access_key=self.secret,
-                               region_name=self.region)
+        aws_region = aws_region or self.DEFAULT_REGION
+        self.session = Session(aws_access_key_id=aws_key_id,
+                               aws_secret_access_key=aws_secret)
         self.s3 = self.session.resource('s3')
         self.client = self.session.client('s3')
-        log.info("Using archive: s3://%s", self.bucket_name)
-        self.bucket = self.s3.Bucket(self.bucket_name)
+        log.info("Using archive: s3://%s", bucket)
+        self.bucket = bucket
 
         try:
-            self.bucket.load()
+            self.client.head_bucket(Bucket=bucket)
         except ClientError as e:
             error_code = int(e.response['Error']['Code'])
             if error_code == 404:
-                self.bucket.create(CreateBucketConfiguration={
-                    'LocationConstraint': self.region
-                })
+                self.client.create_bucket(
+                    Bucket=bucket,
+                    CreateBucketConfiguration={
+                        'LocationConstraint': aws_region
+                    }
+                )
             else:
                 raise
 
-    def upgrade(self):
-        """Make sure bucket policy is set correctly."""
-        cors = self.bucket.Cors()
+        # Make sure bucket policy is set correctly.
         config = {
             'CORSRules': [
                 {
@@ -56,7 +55,7 @@ class S3Archive(Archive):  # pragma: no cover
                 }
             ]
         }
-        cors.put(CORSConfiguration=config)
+        self.client.put_bucket_cors(Bucket=bucket, CORSConfiguration=config)
 
     def _locate_key(self, content_hash):
         if content_hash is None:
@@ -64,8 +63,11 @@ class S3Archive(Archive):  # pragma: no cover
         prefix = self._get_prefix(content_hash)
         if prefix is None:
             return
-        for obj in self.bucket.objects.filter(MaxKeys=1, Prefix=prefix):
-            return obj
+        res = self.client.list_objects(MaxKeys=1,
+                                       Bucket=self.bucket,
+                                       Prefix=prefix)
+        for obj in res.get('Contents', []):
+            return obj.get('Key')
 
     def archive_file(self, file_path, content_hash=None):
         if content_hash is None:
@@ -74,7 +76,7 @@ class S3Archive(Archive):  # pragma: no cover
         obj = self._locate_key(content_hash)
         if obj is None:
             path = os.path.join(self._get_prefix(content_hash), 'data')
-            self.bucket.upload_file(file_path, path)
+            self.client.upload_file(file_path, self.bucket, path)
 
         return content_hash
 
@@ -82,8 +84,8 @@ class S3Archive(Archive):  # pragma: no cover
         return os.path.join(self.local_base, content_hash)
 
     def load_file(self, content_hash, file_name=None):
-        obj = self._locate_key(content_hash)
-        if obj is not None:
+        key = self._locate_key(content_hash)
+        if key is not None:
             path = self._get_local_prefix(content_hash)
             try:
                 os.makedirs(path)
@@ -91,7 +93,7 @@ class S3Archive(Archive):  # pragma: no cover
                 pass
             file_name = make_filename(file_name, default='data')
             path = os.path.join(path, file_name)
-            self.bucket.download_file(obj.key, path)
+            self.client.download_file(self.bucket, key, path)
             return path
 
     def cleanup_file(self, content_hash):
@@ -103,12 +105,12 @@ class S3Archive(Archive):  # pragma: no cover
             shutil.rmtree(path)
 
     def generate_url(self, content_hash, file_name=None, mime_type=None):
-        obj = self._locate_key(content_hash)
-        if obj is None:
+        key = self._locate_key(content_hash)
+        if key is None:
             return
         params = {
-            'Bucket': self.bucket_name,
-            'Key': obj.key
+            'Bucket': self.bucket,
+            'Key': key
         }
         if mime_type:
             params['ResponseContentType'] = mime_type
