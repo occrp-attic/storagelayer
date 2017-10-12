@@ -14,7 +14,7 @@ class FileArchive(Archive):
         self.path = decode_path(path)
         if self.path is None:
             raise ValueError('No archive path is set.')
-        log.info("Archive path: %s", self.path)
+        log.info("Archive: %s", self.path)
 
     def _locate_key(self, content_hash):
         prefix = self._get_prefix(content_hash)

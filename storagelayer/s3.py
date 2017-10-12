@@ -18,15 +18,14 @@ class S3Archive(Archive):
 
     def __init__(self, bucket=None, aws_key_id=None, aws_secret=None,
                  aws_region=None):
-        self.local_base = tempfile.gettempdir()
-
         aws_region = aws_region or self.DEFAULT_REGION
         self.session = Session(aws_access_key_id=aws_key_id,
                                aws_secret_access_key=aws_secret)
         self.s3 = self.session.resource('s3')
         self.client = self.session.client('s3')
-        log.info("Using archive: s3://%s", bucket)
         self.bucket = bucket
+        self.local_base = tempfile.mkdtemp(prefix=bucket)
+        log.info("Archive: s3://%s [%s]", bucket, self.local_base)
 
         try:
             self.client.head_bucket(Bucket=bucket)
