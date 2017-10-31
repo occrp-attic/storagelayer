@@ -11,7 +11,7 @@ test:
 build:
 	python setup.py sdist bdist_wheel
 
-release: build
+release: clean build
 	twine upload dist/*
 
 clean:

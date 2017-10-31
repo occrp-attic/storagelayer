@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import threading
 import tempfile
 
 from boto3.session import Session
@@ -24,8 +25,8 @@ class S3Archive(Archive):
         self.s3 = self.session.resource('s3')
         self.client = self.session.client('s3')
         self.bucket = bucket
-        self.local_base = tempfile.mkdtemp(prefix=bucket)
-        log.info("Archive: s3://%s [%s]", bucket, self.local_base)
+        self.local = threading.local()
+        log.info("Archive: s3://%s", bucket)
 
         try:
             self.client.head_bucket(Bucket=bucket)
@@ -80,7 +81,9 @@ class S3Archive(Archive):
         return content_hash
 
     def _get_local_prefix(self, content_hash):
-        return os.path.join(self.local_base, content_hash)
+        if not hasattr(self.local, 'dir'):
+            self.local.dir = tempfile.mkdtemp(prefix=self.bucket)
+        return os.path.join(self.local.dir, content_hash)
 
     def load_file(self, content_hash, file_name=None):
         key = self._locate_key(content_hash)
