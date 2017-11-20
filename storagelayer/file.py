@@ -1,9 +1,10 @@
 import os
 import shutil
 import logging
+from normality import safe_filename
 
 from storagelayer.archive import Archive
-from storagelayer.util import checksum, make_filename, decode_path
+from storagelayer.util import checksum, decode_path
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class FileArchive(Archive):
             os.makedirs(archive_path)
         except:
             pass
-        file_name = make_filename(file_path, default='data')
+        file_name = safe_filename(file_path, default='data')
         archive_path = os.path.join(archive_path, file_name)
         shutil.copy(file_path, archive_path)
         return content_hash

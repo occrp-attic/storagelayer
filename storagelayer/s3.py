@@ -3,12 +3,12 @@ import shutil
 import logging
 import threading
 import tempfile
-
+from normality import safe_filename
 from boto3.session import Session
 from botocore.exceptions import ClientError
 
 from storagelayer.archive import Archive
-from storagelayer.util import checksum, make_filename
+from storagelayer.util import checksum
 
 log = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ class S3Archive(Archive):
                 os.makedirs(path)
             except:
                 pass
-            file_name = make_filename(file_name, default='data')
+            file_name = safe_filename(file_name, default='data')
             path = os.path.join(path, file_name)
             self.client.download_file(self.bucket, key, path)
             return path

@@ -1,8 +1,6 @@
-import os
 import six
 import sys
 from hashlib import sha1
-from normality import slugify
 
 
 def checksum(file_name):
@@ -24,22 +22,3 @@ def decode_path(file_path):
     if isinstance(file_path, six.binary_type):
         file_path = file_path.decode(sys.getfilesystemencoding())
     return file_path
-
-
-def make_filename(file_name, sep='_', default=None, extension=None):
-    """Create a secure filename for plain file system storage."""
-    if file_name is None:
-        return decode_path(default)
-
-    file_name = decode_path(file_name)
-    file_name = os.path.basename(file_name)
-    file_name, _extension = os.path.splitext(file_name)
-    file_name = slugify(file_name, sep=sep) or ''
-    file_name = file_name[:250]
-    extension = slugify(extension or _extension, sep=sep)
-    if extension and len(extension.strip('.')) and len(file_name):
-        file_name = '.'.join((file_name, extension))
-
-    if not len(file_name.strip()):
-        return decode_path(default)
-    return decode_path(file_name)
