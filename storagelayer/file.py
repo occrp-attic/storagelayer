@@ -39,7 +39,7 @@ class FileArchive(Archive):
         archive_path = os.path.join(self.path, self._get_prefix(content_hash))
         try:
             os.makedirs(archive_path)
-        except:
+        except Exception:
             pass
         file_name = safe_filename(file_path, default='data')
         archive_path = os.path.join(archive_path, file_name)

@@ -40,7 +40,7 @@ class S3Archive(Archive):
                     }
                 )
             else:
-                raise
+                log.exception("Could not check bucket")
 
         # Make sure bucket policy is set correctly.
         config = {
@@ -55,7 +55,11 @@ class S3Archive(Archive):
                 }
             ]
         }
-        self.client.put_bucket_cors(Bucket=bucket, CORSConfiguration=config)
+        try:
+            self.client.put_bucket_cors(Bucket=bucket,
+                                        CORSConfiguration=config)
+        except ClientError as e:
+            log.exception("Could not update CORS")
 
     def _locate_key(self, content_hash):
         if content_hash is None:
