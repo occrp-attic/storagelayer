@@ -59,6 +59,7 @@ class S3Archive(Archive):
             log.warning("Could not update CORS")
 
     def _locate_key(self, content_hash):
+        """Check if a file with the given hash exists on S3."""
         if content_hash is None:
             return
         prefix = self._get_prefix(content_hash)
@@ -71,6 +72,8 @@ class S3Archive(Archive):
             return obj.get('Key')
 
     def archive_file(self, file_path, content_hash=None):
+        """Store the file located at the given path on S3, based on a path
+        made up from its SHA1 content hash."""
         if content_hash is None:
             content_hash = checksum(file_path)
 
@@ -78,18 +81,24 @@ class S3Archive(Archive):
         if obj is None:
             path = os.path.join(self._get_prefix(content_hash), 'data')
             self.client.upload_file(file_path, self.bucket, path)
-
         return content_hash
 
-    def _get_local_prefix(self, content_hash):
-        if not hasattr(self.local, 'dir'):
-            self.local.dir = tempfile.mkdtemp(prefix=self.bucket)
-        return os.path.join(self.local.dir, content_hash)
+    def _get_local_prefix(self, content_hash, temp_path=None):
+        """Determine a temporary path for the file on the local file
+        system."""
+        if temp_path is None:
+            if not hasattr(self.local, 'dir'):
+                self.local.dir = tempfile.mkdtemp(prefix=self.bucket)
+            temp_path = self.local.dir
+        return os.path.join(temp_path, content_hash)
 
-    def load_file(self, content_hash, file_name=None):
+    def load_file(self, content_hash, file_name=None, temp_path=None):
+        """Retrieve a file from S3 storage and put it onto the local file
+        system for further processing."""
         key = self._locate_key(content_hash)
         if key is not None:
-            path = self._get_local_prefix(content_hash)
+            path = self._get_local_prefix(content_hash,
+                                          temp_path=temp_path)
             try:
                 os.makedirs(path)
             except Exception:

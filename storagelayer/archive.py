@@ -22,7 +22,7 @@ class Archive(object):
         pass
 
     @abc.abstractmethod
-    def load_file(self, content_hash, file_name=None):
+    def load_file(self, content_hash, file_name=None, temp_path=None):
         pass
 
     def cleanup_file(self, content_hash):

@@ -46,5 +46,5 @@ class FileArchive(Archive):
         shutil.copy(file_path, archive_path)
         return content_hash
 
-    def load_file(self, content_hash, file_name=None):
+    def load_file(self, content_hash, file_name=None, temp_path=None):
         return self._locate_key(content_hash)
