@@ -5,7 +5,7 @@ import threading
 import tempfile
 from normality import safe_filename
 import boto3
-from botocore.client import Config
+# from botocore.client import Config
 from botocore.exceptions import ClientError
 
 from storagelayer.archive import Archive
@@ -24,8 +24,8 @@ class S3Archive(Archive):
         self.client = boto3.client('s3',
                                    region_name=region_name,
                                    aws_access_key_id=aws_key_id,
-                                   aws_secret_access_key=aws_secret,
-                                   config=Config(signature_version='s3v4'))
+                                   aws_secret_access_key=aws_secret)
+        # config=Config(signature_version='s3v4'))
         self.bucket = bucket
         self.local = threading.local()
         log.info("Archive: s3://%s", bucket)
