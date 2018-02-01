@@ -4,7 +4,8 @@ import logging
 import threading
 import tempfile
 from normality import safe_filename
-from boto3.session import Session
+import boto3
+from botocore.client import Config
 from botocore.exceptions import ClientError
 
 from storagelayer.archive import Archive
@@ -19,11 +20,12 @@ class S3Archive(Archive):
 
     def __init__(self, bucket=None, aws_key_id=None, aws_secret=None,
                  aws_region=None):
-        aws_region = aws_region or self.DEFAULT_REGION
-        self.session = Session(aws_access_key_id=aws_key_id,
-                               aws_secret_access_key=aws_secret)
-        self.s3 = self.session.resource('s3')
-        self.client = self.session.client('s3')
+        region_name = aws_region or self.DEFAULT_REGION
+        self.client = boto3.client('s3',
+                                   region_name=region_name,
+                                   aws_access_key_id=aws_key_id,
+                                   aws_secret_access_key=aws_secret,
+                                   config=Config(signature_version='s3v4'))
         self.bucket = bucket
         self.local = threading.local()
         log.info("Archive: s3://%s", bucket)
@@ -33,12 +35,7 @@ class S3Archive(Archive):
         except ClientError as e:
             error_code = int(e.response['Error']['Code'])
             if error_code == 404:
-                self.client.create_bucket(
-                    Bucket=bucket,
-                    CreateBucketConfiguration={
-                        'LocationConstraint': aws_region
-                    }
-                )
+                self.client.create_bucket(Bucket=bucket)
             else:
                 log.exception("Could not check bucket")
 
@@ -59,7 +56,7 @@ class S3Archive(Archive):
             self.client.put_bucket_cors(Bucket=bucket,
                                         CORSConfiguration=config)
         except ClientError as e:
-            log.exception("Could not update CORS")
+            log.warning("Could not update CORS")
 
     def _locate_key(self, content_hash):
         if content_hash is None:
@@ -95,7 +92,7 @@ class S3Archive(Archive):
             path = self._get_local_prefix(content_hash)
             try:
                 os.makedirs(path)
-            except:
+            except Exception:
                 pass
             file_name = safe_filename(file_name, default='data')
             path = os.path.join(path, file_name)

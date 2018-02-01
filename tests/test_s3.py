@@ -33,6 +33,7 @@ class FileArchiveTest(TestCase):
     def test_generate_url(self):
         out = self.archive.archive_file(self.file)
         url = self.archive.generate_url(out)
+        # assert False, url
         assert url is not None, url
 
     def test_load_file(self):
