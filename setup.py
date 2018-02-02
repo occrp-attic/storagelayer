@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='storagelayer',
-    version='0.3.1',
+    version='0.3.2',
     description="Content-addressable storage for aleph and memorious",
     long_description="",
     classifiers=[
@@ -28,8 +28,8 @@ setup(
     zip_safe=True,
     install_requires=[
         'six',
-        'boto3>=1.4.6',
-        'normality>=0.4.4'
+        'boto3 >= 1.4.6',
+        'normality >= 0.5.7'
     ],
     tests_require=[
         'coverage',

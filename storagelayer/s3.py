@@ -98,8 +98,7 @@ class S3Archive(Archive):
         system for further processing."""
         key = self._locate_key(content_hash)
         if key is not None:
-            path = self._get_local_prefix(content_hash,
-                                          temp_path=temp_path)
+            path = self._get_local_prefix(content_hash, temp_path=temp_path)
             try:
                 os.makedirs(path)
             except Exception:
@@ -109,11 +108,11 @@ class S3Archive(Archive):
             self.client.download_file(self.bucket, key, path)
             return path
 
-    def cleanup_file(self, content_hash):
+    def cleanup_file(self, content_hash, temp_path=None):
         """Delete the local cached version of the file."""
         if content_hash is None:
             return
-        path = self._get_local_prefix(content_hash)
+        path = self._get_local_prefix(content_hash, temp_path=temp_path)
         if os.path.isdir(path):
             shutil.rmtree(path)
 

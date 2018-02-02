@@ -25,7 +25,7 @@ class Archive(object):
     def load_file(self, content_hash, file_name=None, temp_path=None):
         pass
 
-    def cleanup_file(self, content_hash):
+    def cleanup_file(self, content_hash, temp_path=None):
         pass
 
     def generate_url(self, content_hash, file_name=None, mime_type=None):
