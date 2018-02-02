@@ -90,7 +90,8 @@ class S3Archive(Archive):
             if not hasattr(self.local, 'dir'):
                 self.local.dir = tempfile.mkdtemp(prefix=self.bucket)
             temp_path = self.local.dir
-        return os.path.join(temp_path, content_hash)
+        path_name = '%s.slayer' % content_hash
+        return os.path.join(temp_path, path_name)
 
     def load_file(self, content_hash, file_name=None, temp_path=None):
         """Retrieve a file from S3 storage and put it onto the local file
