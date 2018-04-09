@@ -19,7 +19,8 @@ def checksum(file_name):
             if not block:
                 break
             digest.update(block)
-    return binascii.hexlify(digest.finalize())
+    hexdigest = binascii.hexlify(digest.finalize())
+    return six.text_type(hexdigest)
 
 
 def decode_path(file_path):
