@@ -5,7 +5,7 @@ python:
 
 install:
   - pip install -e .
-  - pip install moto coverage nose
+  - pip install moto coverage nose twine
 
 script:
   - nosetests --with-coverage --cover-package=storagelayer --cover-erase
