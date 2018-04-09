@@ -28,6 +28,7 @@ setup(
     zip_safe=True,
     install_requires=[
         'six',
+        'cryptography',
         'boto3 >= 1.4.6',
         'normality >= 0.5.7'
     ],

@@ -1,18 +1,25 @@
 import six
 import sys
-from hashlib import sha1
+import binascii
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+
+
+BUF_SIZE = 1024 * 1024 * 16
+CRYPTO = default_backend()
 
 
 def checksum(file_name):
     """Generate a hash for a given file name."""
-    hash = sha1()
+    digest = hashes.Hash(hashes.SHA1(), backend=CRYPTO)
     with open(file_name, 'rb') as fh:
         while True:
-            block = fh.read(8192)
+            block = fh.read(BUF_SIZE)
             if not block:
                 break
-            hash.update(block)
-    return hash.hexdigest()
+            digest.update(block)
+    return binascii.hexlify(digest.finalize())
 
 
 def decode_path(file_path):
