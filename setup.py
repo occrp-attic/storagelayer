@@ -30,7 +30,7 @@ setup(
         'six',
         'cryptography',
         'boto3 >= 1.4.6',
-        'normality >= 0.5.7'
+        'normality >= 0.5.12'
     ],
     tests_require=[
         'coverage',
