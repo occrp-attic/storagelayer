@@ -20,7 +20,7 @@ def checksum(file_name):
                 break
             digest.update(block)
     hexdigest = binascii.hexlify(digest.finalize())
-    return six.text_type(hexdigest)
+    return hexdigest.decode('utf-8')
 
 
 def decode_path(file_path):
