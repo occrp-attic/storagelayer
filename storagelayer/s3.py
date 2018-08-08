@@ -1,25 +1,21 @@
 import os
-import shutil
-import logging
-import threading
-import tempfile
-from normality import safe_filename
 import boto3
-# from botocore.client import Config
+import logging
 from botocore.exceptions import ClientError
 
-from storagelayer.archive import Archive
+from storagelayer.virtual import VirtualArchive
 from storagelayer.util import checksum
 
 log = logging.getLogger(__name__)
 
 
-class S3Archive(Archive):
+class S3Archive(VirtualArchive):
     TIMEOUT = 84600
     DEFAULT_REGION = 'eu-west-1'
 
     def __init__(self, bucket=None, aws_key_id=None, aws_secret=None,
                  aws_region=None):
+        super(S3Archive, self).__init__()
         region_name = aws_region or self.DEFAULT_REGION
         self.client = boto3.client('s3',
                                    region_name=region_name,
@@ -27,7 +23,6 @@ class S3Archive(Archive):
                                    aws_secret_access_key=aws_secret)
         # config=Config(signature_version='s3v4'))
         self.bucket = bucket
-        self.local = threading.local()
         log.info("Archive: s3://%s", bucket)
 
         try:
@@ -83,38 +78,14 @@ class S3Archive(Archive):
             self.client.upload_file(file_path, self.bucket, path)
         return content_hash
 
-    def _get_local_prefix(self, content_hash, temp_path=None):
-        """Determine a temporary path for the file on the local file
-        system."""
-        if temp_path is None:
-            if not hasattr(self.local, 'dir'):
-                self.local.dir = tempfile.mkdtemp(prefix=self.bucket)
-            temp_path = self.local.dir
-        path_name = '%s.slayer' % content_hash
-        return os.path.join(temp_path, path_name)
-
     def load_file(self, content_hash, file_name=None, temp_path=None):
         """Retrieve a file from S3 storage and put it onto the local file
         system for further processing."""
         key = self._locate_key(content_hash)
         if key is not None:
-            path = self._get_local_prefix(content_hash, temp_path=temp_path)
-            try:
-                os.makedirs(path)
-            except Exception:
-                pass
-            file_name = safe_filename(file_name, default='data')
-            path = os.path.join(path, file_name)
+            path = self._local_path(content_hash, file_name, temp_path)
             self.client.download_file(self.bucket, key, path)
             return path
-
-    def cleanup_file(self, content_hash, temp_path=None):
-        """Delete the local cached version of the file."""
-        if content_hash is None:
-            return
-        path = self._get_local_prefix(content_hash, temp_path=temp_path)
-        if os.path.isdir(path):
-            shutil.rmtree(path)
 
     def generate_url(self, content_hash, file_name=None, mime_type=None):
         key = self._locate_key(content_hash)

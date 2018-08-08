@@ -30,6 +30,7 @@ setup(
         'six',
         'cryptography',
         'boto3 >= 1.4.6',
+        'google-cloud-storage',
         'normality >= 0.5.12'
     ],
     tests_require=[

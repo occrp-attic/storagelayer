@@ -2,6 +2,7 @@ import logging
 
 from storagelayer.file import FileArchive
 from storagelayer.s3 import S3Archive
+from storagelayer.gs import GoogleStorageArchive
 from storagelayer.util import checksum  # noqa
 
 logging.getLogger('boto3').setLevel(logging.WARNING)
@@ -9,6 +10,7 @@ logging.getLogger('botocore').setLevel(logging.WARNING)
 
 ARCHIVE_FILE = 'file'
 ARCHIVE_S3 = 's3'
+ARCHIVE_GS = 'gs'
 
 
 def init(archive_type, path=None, bucket=None, aws_key_id=None,
@@ -23,5 +25,8 @@ def init(archive_type, path=None, bucket=None, aws_key_id=None,
     if archive_type == ARCHIVE_S3:
         return S3Archive(bucket=bucket, aws_key_id=aws_key_id,
                          aws_secret=aws_secret, aws_region=aws_region)
+
+    if archive_type == ARCHIVE_GS:
+        return GoogleStorageArchive(bucket=bucket)
 
     return FileArchive(path=path)
