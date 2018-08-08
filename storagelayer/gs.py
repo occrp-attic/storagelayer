@@ -25,8 +25,10 @@ class GoogleStorageArchive(VirtualArchive):
             "origin": ['*'],
             "method": ['GET'],
             "responseHeader": [
-                'Accept-Ranges', 'Content-Encoding',
-                'Content-Length', 'Content-Range'
+                'Accept-Ranges',
+                'Content-Encoding',
+                'Content-Length',
+                'Content-Range'
             ],
             "maxAgeSeconds": self.TIMEOUT
         }
