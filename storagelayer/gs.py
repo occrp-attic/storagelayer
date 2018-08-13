@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import datetime, timedelta
 from google.cloud.storage import Blob
 from google.cloud.storage.client import Client
 
@@ -74,6 +75,7 @@ class GoogleStorageArchive(VirtualArchive):
         disposition = None
         if file_name:
             disposition = 'inline; filename=%s' % file_name
-        return blob.generate_signed_url(self.TIMEOUT,
+        expire = datetime.utcnow() + timedelta(seconds=self.TIMEOUT)
+        return blob.generate_signed_url(expire,
                                         response_type=mime_type,
                                         response_disposition=disposition)
