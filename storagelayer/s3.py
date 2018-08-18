@@ -15,7 +15,7 @@ class S3Archive(VirtualArchive):
 
     def __init__(self, bucket=None, aws_key_id=None, aws_secret=None,
                  aws_region=None):
-        super(S3Archive, self).__init__()
+        super(S3Archive, self).__init__(bucket)
         region_name = aws_region or self.DEFAULT_REGION
         self.client = boto3.client('s3',
                                    region_name=region_name,

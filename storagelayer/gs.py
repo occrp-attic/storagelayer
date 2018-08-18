@@ -14,7 +14,7 @@ class GoogleStorageArchive(VirtualArchive):
     TIMEOUT = 84600
 
     def __init__(self, bucket=None):
-        super(GoogleStorageArchive, self).__init__()
+        super(GoogleStorageArchive, self).__init__(bucket)
         self.client = Client()
         log.info("Archive: gs://%s", bucket)
 

@@ -1,4 +1,3 @@
-import six
 import sys
 import binascii
 
@@ -27,6 +26,6 @@ def decode_path(file_path):
     """Decode a path specification into unicode."""
     if file_path is None:
         return
-    if isinstance(file_path, six.binary_type):
+    if isinstance(file_path, bytes):
         file_path = file_path.decode(sys.getfilesystemencoding())
     return file_path

@@ -12,15 +12,16 @@ log = logging.getLogger(__name__)
 
 class VirtualArchive(Archive):
 
-    def __init__(self):
+    def __init__(self, base_name):
         self.local = threading.local()
+        self.base_name = base_name
 
     def _get_local_prefix(self, content_hash, temp_path=None):
         """Determine a temporary path for the file on the local file
         system."""
         if temp_path is None:
             if not hasattr(self.local, 'dir'):
-                self.local.dir = tempfile.mkdtemp(prefix=self.bucket)
+                self.local.dir = tempfile.mkdtemp(prefix=self.base_name)
             temp_path = self.local.dir
         path_name = '%s.slayer' % content_hash
         return os.path.join(temp_path, path_name)

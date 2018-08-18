@@ -11,8 +11,6 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
@@ -27,11 +25,10 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        'six',
-        'cryptography',
-        'boto3 >= 1.4.6',
-        'google-cloud-storage',
-        'normality >= 0.5.12'
+        'cryptography>=2.3.1',
+        'boto3>=1.4.6',
+        'google-cloud-storage>=1.10.0',
+        'normality>=0.6.1'
     ],
     tests_require=[
         'coverage',
