@@ -9,7 +9,7 @@ before_install:
 
 install:
   - pip install -e .
-  - pip install moto coverage nose twine pyicu
+  - pip install moto coverage nose twine pyicu google-compute-engine
 
 script:
   - nosetests --with-coverage --cover-package=storagelayer --cover-erase
