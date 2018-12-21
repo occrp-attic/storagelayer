@@ -60,6 +60,7 @@ class S3Archive(VirtualArchive):
         prefix = self._get_prefix(content_hash)
         if prefix is None:
             return
+        # obj = self.client.Object(self.bucket, os.path.join(prefix, 'data'))
         res = self.client.list_objects(MaxKeys=1,
                                        Bucket=self.bucket,
                                        Prefix=prefix)
@@ -95,9 +96,9 @@ class S3Archive(VirtualArchive):
             'Bucket': self.bucket,
             'Key': key
         }
-        if mime_type:
+        if mime_type is not None:
             params['ResponseContentType'] = mime_type
-        if file_name:
+        if file_name is not None:
             disposition = 'inline; filename=%s' % file_name
             params['ResponseContentDisposition'] = disposition
         return self.client.generate_presigned_url('get_object',

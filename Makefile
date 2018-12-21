@@ -1,5 +1,5 @@
 
-all: clean install test release
+all: clean install test
 
 install:
 	pip install -q -e .

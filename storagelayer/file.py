@@ -22,6 +22,9 @@ class FileArchive(Archive):
         if prefix is None:
             return
         path = os.path.join(self.path, prefix)
+        data_path = os.path.join(path, 'data')
+        if os.path.exists(data_path):
+            return data_path
         try:
             for file_name in os.listdir(path):
                 return os.path.join(path, file_name)

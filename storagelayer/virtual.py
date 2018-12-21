@@ -23,7 +23,7 @@ class VirtualArchive(Archive):
             if not hasattr(self.local, 'dir'):
                 self.local.dir = tempfile.mkdtemp(prefix=self.base_name)
             temp_path = self.local.dir
-        path_name = '%s.slayer' % content_hash
+        path_name = '%s.storagelayer' % content_hash
         return os.path.join(temp_path, path_name)
 
     def _local_path(self, content_hash, file_name, temp_path):
@@ -40,5 +40,7 @@ class VirtualArchive(Archive):
         if content_hash is None:
             return
         path = self._get_local_prefix(content_hash, temp_path=temp_path)
-        if os.path.isdir(path):
-            shutil.rmtree(path)
+        try:
+            shutil.rmtree(path, ignore_errors=True)
+        except Exception:
+            pass

@@ -43,6 +43,13 @@ class GoogleStorageArchive(VirtualArchive):
         prefix = self._get_prefix(content_hash)
         if prefix is None:
             return
+
+        # First, check the standard file name:
+        blob = Blob(os.path.join(prefix, 'data'), self.bucket)
+        if blob.exists(self.client):
+            return blob
+
+        # Second, iterate over all file names:
         for blob in self.bucket.list_blobs(max_results=1, prefix=prefix):
             return blob
 
@@ -73,7 +80,7 @@ class GoogleStorageArchive(VirtualArchive):
         if blob is None:
             return
         disposition = None
-        if file_name:
+        if file_name is not None:
             disposition = 'inline; filename=%s' % file_name
         expire = datetime.utcnow() + timedelta(seconds=self.TIMEOUT)
         return blob.generate_signed_url(expire,
