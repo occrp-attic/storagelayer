@@ -2,9 +2,14 @@ language: python
 python:
   - "3.6"
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libicu-dev
+  - sudo rm -f /etc/boto.cfg
+
 install:
   - pip install -e .
-  - pip install moto coverage nose twine
+  - pip install moto coverage nose twine pyicu
 
 script:
   - nosetests --with-coverage --cover-package=storagelayer --cover-erase
