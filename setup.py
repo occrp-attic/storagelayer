@@ -25,10 +25,10 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        'cryptography>=2.3.1',
-        'boto3>=1.4.6',
-        'google-cloud-storage>=1.10.0',
-        'normality>=0.6.1'
+        'cryptography >= 2.4.2',
+        'boto3 >= 1.9.71',
+        'google-cloud-storage >= 1.10.0',
+        'normality >= 0.6.1'
     ],
     tests_require=[
         'coverage',
